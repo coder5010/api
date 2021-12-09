@@ -1,35 +1,35 @@
 from instagram_private_api import Client, ClientCompatPatch
-from flask import request
 import json
-from flask import jsonify
+from fastapi import FastAPI, Request
+import uvicorn
 
-from flask import Flask
-app = Flask(__name__) # Create an Instance
+app = FastAPI()
 
-user_name = 'instagram alt username'
-password = 'instagram alt password'
+user_name = 'yourigname'
+password = 'yourigpass'
 
 api = Client(user_name, password)
 
 
-@app.route('/instagram') 
-def main(): 
-    username = request.args.get('username') 
+@app.get('/instagram') 
+async def read_item(username: str): 
+    #username = str(Request.query_params)
+
     hehe = api.username_info(username)
     data = json.dumps(hehe)
     aa = json.loads(data)
     print(aa)
-    return jsonify(
-        username=username,
-        full_name=aa['user']['full_name'],
-        biography=aa['user']['biography'],
-        posts=aa['user']['media_count'],
-        followers=aa['user']['follower_count'],
-        following=aa['user']['following_count'],
-        private=aa['user']['is_private'],
-        verified=aa['user']['is_verified']
-
-    )
+    this_dict = {
+  "full_name": aa['user']['full_name'],
+  "biography": aa['user']['biography'],
+  "posts": aa['user']['media_count'],
+  "followers": aa['user']['follower_count'],
+  "following": aa['user']['following_count'],
+  "private": aa['user']['is_private'],
+  "verified": aa['user']['is_verified']
+}
+    return this_dict
 
     #return aa['user']['biography']
-app.run(host='0.0.0.0', port=5000, debug=True) 
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
